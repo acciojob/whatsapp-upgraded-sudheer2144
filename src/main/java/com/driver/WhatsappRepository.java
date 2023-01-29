@@ -27,7 +27,7 @@ public class WhatsappRepository {
     }
 
     public int createMessage(String content){
-        int id=messageDB.values().size()+1;
+        int id=messageDB.size()+1;
         Message message=new Message();
         message.setId(id);
         message.setContent(content);
@@ -37,24 +37,23 @@ public class WhatsappRepository {
     }
 
     public Group createGroup(List<User> users){
-        Group group=new Group();
+        Group newGroup=new Group();
         if(users.size()==2){
-            group.setName(users.get(1).getName());
-            //group.setNumberOfParticipants(0);
+            newGroup.setName(users.get(1).getName());
+            newGroup.setNumberOfParticipants(users.size());
         }
-        if(users.size()>2){
-            String grp="Group ";
+        else{
             int count = 1;
             for(Group groupInDB: groupDB.keySet()){
                 if(groupDB.get(groupInDB).size()>2){
                     count++;
                 }
             }
-            group.setName(grp+String.valueOf(count));
-            group.setNumberOfParticipants(users.size());
+            newGroup.setName("Group "+String.valueOf(count));
+            newGroup.setNumberOfParticipants(users.size());
         }
-        groupDB.put(group,users);
-        return group;
+        groupDB.put(newGroup,users);
+        return newGroup;
     }
 
     public int sendMessage(Message message,User sender,Group group) throws Exception{
@@ -70,6 +69,9 @@ public class WhatsappRepository {
         if(userFound==null){
             throw new RuntimeException("You are not allowed to send message");
         }
+
+        message.setId(messageDB.size()+1);
+        messageDB.put(message.getId(),message);
 
         List<Message> userMessages=new ArrayList<>();
         if(userMessageDB.containsKey(sender.getMobile())){
@@ -106,8 +108,6 @@ public class WhatsappRepository {
         if(userFound==null){
             throw new RuntimeException("User is not a participant");
         }
-
-        groupDB.remove(foundGroup);
 
         groupUsers.remove(userFound);
         groupUsers.add(0,userFound);
@@ -158,11 +158,11 @@ public class WhatsappRepository {
             }
         }
 
-        if(usersInGroupList==null){
+        if(userInGroup==null){
             throw new RuntimeException("User not found");
         }
 
-        if(usersInGroupList.get(0).getMobile().equals(user.getMobile())){
+        if(usersInGroupList.get(0).getMobile().equals(userInGroup.getMobile())){
             throw new RuntimeException("Cannot remove admin");
         }
 
@@ -179,7 +179,7 @@ public class WhatsappRepository {
         }
 
         if(usersInGroupList.size()<=2){
-            userGroup.setNumberOfParticipants(0);
+            userGroup.setNumberOfParticipants(2);
             userGroup.setName(usersInGroupList.get(usersInGroupList.size()-1).getName());
         }
 
