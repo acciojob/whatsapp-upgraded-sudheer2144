@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("whatsapp")
+@RequestMapping("/whatsapp")
 public class WhatsappController {
 
     //Autowire will not work in this case, no need to change this and add autowire

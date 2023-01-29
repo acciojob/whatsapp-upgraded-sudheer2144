@@ -40,17 +40,17 @@ public class WhatsappRepository {
         Group group=new Group();
         if(users.size()==2){
             group.setName(users.get(1).getName());
-            group.setNumberOfParticipants(0);
+            //group.setNumberOfParticipants(0);
         }
-        else{
+        if(users.size()>2){
+            String grp="Group ";
             int count = 1;
             for(Group groupInDB: groupDB.keySet()){
-                String groupName = groupInDB.getName();
-                if(groupName.substring(0,5).equals("Group")){
+                if(groupDB.get(groupInDB).size()>2){
                     count++;
                 }
             }
-            group.setName("Group "+String.valueOf(count));
+            group.setName(grp+String.valueOf(count));
             group.setNumberOfParticipants(users.size());
         }
         groupDB.put(group,users);
@@ -188,7 +188,11 @@ public class WhatsappRepository {
         groupDB.put(userGroup,usersInGroupList);
         groupMessageDB.put(userGroup,groupMessages);
 
-        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+messageDB.size();
+        int countMessagesInAllGroups=0;
+        for(List<Message> messages:groupMessageDB.values()){
+            countMessagesInAllGroups+=messages.size();
+        }
+        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+countMessagesInAllGroups;
     }
 
     public String findMessage(Date start, Date end, int k) throws Exception{
