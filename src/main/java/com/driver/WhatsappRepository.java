@@ -159,6 +159,7 @@ public class WhatsappRepository {
                 break;
             }
         }
+
         if(usersInGroupList==null){
             throw new RuntimeException("User not found");
         }
@@ -169,8 +170,8 @@ public class WhatsappRepository {
 
         usersInGroupList.remove(userInGroup);
 
-        List<Message> userMessages=userMessageDB.get(user.getMobile());
-        userMessageDB.remove(user.getMobile());
+        List<Message> userMessages=userMessageDB.get(userInGroup.getMobile());
+        userMessageDB.remove(userInGroup.getMobile());
 
         List<Message> groupMessages=groupMessageDB.get(userGroup);
 
@@ -179,10 +180,14 @@ public class WhatsappRepository {
             messageDB.remove(userMessage.getId());
         }
 
+        if(usersInGroupList.size()<=2){
+            userGroup.setNumberOfParticipants(0);
+        }
+
         groupDB.put(userGroup,usersInGroupList);
         groupMessageDB.put(userGroup,groupMessages);
 
-        return usersInGroupList.size()+groupMessages.size()+messageDB.size();
+        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+messageDB.size();
     }
 
     public String findMessage(Date start, Date end, int k) throws Exception{
