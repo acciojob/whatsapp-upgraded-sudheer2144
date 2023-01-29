@@ -139,58 +139,58 @@ public class WhatsappRepository {
     }
 
 
-    public int removeUser(User user) {
+    public int removeUser(User userRequired) {
 
-        List<User> usersInGroupList=null;
+        List<User> listOfUsersInGroup=null;
 
-        Group userGroup=null;
+        Group groupOfUser=null;
 
-        User userInGroup=null;
+        User user=null;
 
         for(Group group:groupDB.keySet()){
             List<User> usersList=groupDB.get(group);
-            User findUser=userFinder(usersList,user);
+            User findUser=userFinder(usersList,userRequired);
             if(findUser!=null){
-                usersInGroupList=usersList;
-                userGroup=group;
-                userInGroup=findUser;
+                listOfUsersInGroup=usersList;
+                groupOfUser=group;
+                user=findUser;
                 break;
             }
         }
 
-        if(userInGroup==null){
+        if(user==null){
             throw new RuntimeException("User not found");
         }
 
-        if(usersInGroupList.get(0).getMobile().equals(userInGroup.getMobile())){
+        if(listOfUsersInGroup.get(0).getMobile().equals(user.getMobile())){
             throw new RuntimeException("Cannot remove admin");
         }
 
-        usersInGroupList.remove(userInGroup);
+        listOfUsersInGroup.remove(user);
 
-        List<Message> userMessages=userMessageDB.get(userInGroup.getMobile());
-        userMessageDB.remove(userInGroup.getMobile());
+        List<Message> messagesOfUser=userMessageDB.get(user.getMobile());
+        List<Message> messagesInGroup=groupMessageDB.get(groupOfUser);
+        for(Message message:messagesOfUser){
+            messagesInGroup.remove(message);
+            messageDB.remove(message.getId());
+        }
+        userMessageDB.remove(user.getMobile());
 
-        List<Message> groupMessages=groupMessageDB.get(userGroup);
+        if(listOfUsersInGroup.size()<=2){
+            groupOfUser.setName(listOfUsersInGroup.get(listOfUsersInGroup.size()-1).getName());
+        }
+        groupOfUser.setNumberOfParticipants(listOfUsersInGroup.size());
 
-        for(Message userMessage:userMessages){
-            groupMessages.remove(userMessage);
-            messageDB.remove(userMessage.getId());
+        groupDB.put(groupOfUser,listOfUsersInGroup);
+
+        groupMessageDB.put(groupOfUser,messagesInGroup);
+
+        int noOfMessagesInAllGroups=0;
+        for(List<Message> messageList:groupMessageDB.values()){
+            noOfMessagesInAllGroups+=messageList.size();
         }
 
-        if(usersInGroupList.size()<=2){
-            userGroup.setNumberOfParticipants(2);
-            userGroup.setName(usersInGroupList.get(usersInGroupList.size()-1).getName());
-        }
-
-        groupDB.put(userGroup,usersInGroupList);
-        groupMessageDB.put(userGroup,groupMessages);
-
-        int countMessagesInAllGroups=-1;
-        for(List<Message> messages:groupMessageDB.values()){
-            countMessagesInAllGroups+=messages.size();
-        }
-        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+countMessagesInAllGroups;
+        return groupDB.get(groupOfUser).size()+groupMessageDB.get(groupOfUser).size()+noOfMessagesInAllGroups;
     }
 
     public String findMessage(Date start, Date end, int k) throws Exception{
