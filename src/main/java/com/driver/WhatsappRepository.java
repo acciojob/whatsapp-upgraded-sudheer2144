@@ -171,7 +171,7 @@ public class WhatsappRepository {
         List<Message> messagesOfUser=userMessageDB.get(user.getMobile());
         List<Message> messagesInGroup=groupMessageDB.get(groupOfUser);
         for(Message message:messagesOfUser){
-            messagesInGroup.remove(message);
+            //messagesInGroup.remove(message);
             messageDB.remove(message.getId());
         }
         userMessageDB.remove(user.getMobile());
