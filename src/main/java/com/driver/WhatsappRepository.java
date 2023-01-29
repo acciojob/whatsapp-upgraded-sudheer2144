@@ -40,8 +40,9 @@ public class WhatsappRepository {
         Group group=new Group();
         if(users.size()==2){
             group.setName(users.get(1).getName());
+            group.setNumberOfParticipants(0);
         }
-        else if(users.size()>2){
+        else{
             int count = 1;
             for(Group groupInDB: groupDB.keySet()){
                 String groupName = groupInDB.getName();
