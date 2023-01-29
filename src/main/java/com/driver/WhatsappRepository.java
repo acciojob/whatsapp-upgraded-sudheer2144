@@ -190,7 +190,7 @@ public class WhatsappRepository {
         for(List<Message> messages:groupMessageDB.values()){
             countMessagesInAllGroups+=messages.size();
         }
-        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+countMessagesInAllGroups;
+        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+messageDB.size();
     }
 
     public String findMessage(Date start, Date end, int k) throws Exception{
