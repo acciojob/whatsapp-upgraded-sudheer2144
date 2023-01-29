@@ -108,9 +108,6 @@ public class WhatsappRepository {
         }
 
         groupDB.remove(foundGroup);
-        if(groupUsers.size()==2){
-            foundGroup.setName(user.getName());
-        }
 
         groupUsers.remove(userFound);
         groupUsers.add(0,userFound);
@@ -183,6 +180,7 @@ public class WhatsappRepository {
 
         if(usersInGroupList.size()<=2){
             userGroup.setNumberOfParticipants(0);
+            userGroup.setName(usersInGroupList.get(1).getName());
         }
 
         groupDB.put(userGroup,usersInGroupList);
