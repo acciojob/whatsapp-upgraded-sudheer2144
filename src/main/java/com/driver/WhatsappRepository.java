@@ -180,7 +180,7 @@ public class WhatsappRepository {
 
         if(usersInGroupList.size()<=2){
             userGroup.setNumberOfParticipants(0);
-            userGroup.setName(usersInGroupList.get(1).getName());
+            userGroup.setName(usersInGroupList.get(usersInGroupList.size()-1).getName());
         }
 
         groupDB.put(userGroup,usersInGroupList);
