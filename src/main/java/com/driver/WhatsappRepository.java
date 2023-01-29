@@ -65,8 +65,8 @@ public class WhatsappRepository {
 
         List<User> groupUsersList=groupDB.get(groupFound);
 
-        boolean userFound=userFinder(groupUsersList,sender);
-        if(!userFound){
+        User userFound=userFinder(groupUsersList,sender);
+        if(userFound==null){
             throw new RuntimeException("You are not allowed to send message");
         }
 
@@ -96,12 +96,13 @@ public class WhatsappRepository {
 
         List<User> groupUsers=groupDB.get(foundGroup);
 
-        if(!groupUsers.get(0).getMobile().equals(user.getMobile())){
+        if(!groupUsers.get(0).getMobile().equals(approver.getMobile())){
             throw new RuntimeException("Approver does not have rights");
         }
 
-        boolean userFound=userFinder(groupUsers,user);
-        if(!userFound){
+        User userFound=userFinder(groupUsers,user);
+
+        if(userFound==null){
             throw new RuntimeException("User is not a participant");
         }
 
@@ -110,8 +111,8 @@ public class WhatsappRepository {
             foundGroup.setName(user.getName());
         }
 
-        groupUsers.remove(user);
-        groupUsers.add(0,user);
+        groupUsers.remove(userFound);
+        groupUsers.add(0,userFound);
 
         groupDB.put(foundGroup,groupUsers);
 
@@ -130,13 +131,13 @@ public class WhatsappRepository {
         return foundGroup;
     }
 
-    public boolean userFinder(List<User> groupUsers,User user){
+    public User userFinder(List<User> groupUsers,User user){
         for(User everyUser:groupUsers){
             if(everyUser.getMobile().equals(user.getMobile())){
-                return true;
+                return everyUser;
             }
         }
-        return false;
+        return null;
     }
 
 
@@ -146,11 +147,15 @@ public class WhatsappRepository {
 
         Group userGroup=null;
 
+        User userInGroup=null;
+
         for(Group group:groupDB.keySet()){
             List<User> usersList=groupDB.get(group);
-            if(userFinder(usersList,user)){
+            User findUser=userFinder(usersList,user);
+            if(findUser!=null){
                 usersInGroupList=usersList;
                 userGroup=group;
+                userInGroup=findUser;
                 break;
             }
         }
@@ -162,12 +167,7 @@ public class WhatsappRepository {
             throw new RuntimeException("Cannot remove admin");
         }
 
-        for(User userInList:usersInGroupList){
-            if(user.getMobile().equals(userInList.getMobile())){
-                usersInGroupList.remove(userInList);
-                break;
-            }
-        }
+        usersInGroupList.remove(userInGroup);
 
         List<Message> userMessages=userMessageDB.get(user.getMobile());
         userMessageDB.remove(user.getMobile());
