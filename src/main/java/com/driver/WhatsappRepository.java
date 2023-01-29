@@ -186,11 +186,11 @@ public class WhatsappRepository {
         groupDB.put(userGroup,usersInGroupList);
         groupMessageDB.put(userGroup,groupMessages);
 
-        int countMessagesInAllGroups=0;
+        int countMessagesInAllGroups=-1;
         for(List<Message> messages:groupMessageDB.values()){
             countMessagesInAllGroups+=messages.size();
         }
-        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+messageDB.size();
+        return groupDB.get(userGroup).size()+groupMessageDB.get(userGroup).size()+countMessagesInAllGroups;
     }
 
     public String findMessage(Date start, Date end, int k) throws Exception{
